@@ -18,11 +18,6 @@ public class BookingController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateBooking([FromBody] CabBooking bookingRequest)
     {
-        //var cab = await _context.Cab.FindAsync(bookingRequest.CabId);
-        //if (cab == null || !cab.IsAvailable)
-        //    return BadRequest("Cab not available");
-
-        //cab.IsAvailable = false;
         Booking booking = new Booking()
         {
             CabId = bookingRequest.CabId,
@@ -37,7 +32,6 @@ public class BookingController : ControllerBase
         _context.Booking.Add(booking);
         await _context.SaveChangesAsync();
         return Ok(booking);
-        Console.WriteLine("Booking received");
     }
 
     [HttpGet]
@@ -46,55 +40,53 @@ public class BookingController : ControllerBase
         var BookingList = await _context.Booking
             .ToListAsync();
 
-        return Ok(BookingList); // <-- This sends data to Angular
+        return Ok(BookingList);
     }
 
     [HttpGet("id")]
     public async Task<IActionResult> GetBookingListById(int id)
     {
-        var User = await _context.Booking.Where(x => x.Id == id).FirstOrDefaultAsync();
+        var booking = await _context.Booking.Where(x => x.Id == id).FirstOrDefaultAsync();
 
-        if (User == null)
+        if (booking == null)
         {
             return NotFound();
         }
 
-        return Ok(User);
+        return Ok(booking);
     }
 
     [HttpPut("id")]
-    public async Task<IActionResult> UpdateBooking(int id, Booking UserRequest)
+    public async Task<IActionResult> UpdateBooking(int id, [FromBody] CabBooking request)
     {
-        var User = await _context.Booking.Where(x => x.Id == id).FirstOrDefaultAsync();
-        if (User == null)
+        var booking = await _context.Booking.Where(x => x.Id == id).FirstOrDefaultAsync();
+        if (booking == null)
         {
             return NotFound();
         }
         else
         {
-            User.CabId = UserRequest.CabId;
-            User.FromLocation = UserRequest.FromLocation;
-            User.ToLocation = UserRequest.ToLocation;
-            User.PickupDateTime = UserRequest.PickupDateTime;
-            User.ReturnDateTime = UserRequest.ReturnDateTime;
-            User.CustomerName = UserRequest.CustomerName;
-            User.PhoneNumber = UserRequest.PhoneNumber;
-            User.Address = UserRequest.Address;
+            booking.CabId = request.CabId;
+            booking.FromLocation = request.FromLocation;
+            booking.ToLocation = request.ToLocation;
+            booking.PickupDateTime = request.PickupDateTime;
+            booking.ReturnDateTime = request.ReturnDateTime;
+            booking.CustomerName = request.CustomerName;
+            booking.PhoneNumber = request.PhoneNumber;
+            booking.Address = request.Address;
         }
-
         await _context.SaveChangesAsync();
-
         return Ok(User);
     }
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var user = await _context.Booking.FirstOrDefaultAsync(x => x.Id == id);
-        if (user == null)
+        var booking = await _context.Booking.FirstOrDefaultAsync(x => x.Id == id);
+        if (booking == null)
             return NotFound();
 
-        _context.Booking.Remove(user);
+        _context.Booking.Remove(booking);
         await _context.SaveChangesAsync();
-        return Ok(user);
+        return Ok(booking);
     }
 }
