@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Mail;
 using System.Net;
 using TaxiApplication.Server.Request;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaxiApplication.Server.Controllers;
-
 
 [ApiController]
 [Route("api/[controller]")]
@@ -33,37 +33,33 @@ public class BookingController : ControllerBase
         };
         _context.Booking.Add(booking);
         await _context.SaveChangesAsync();
-        // Example cab owner email — in real app, fetch from DB or config
-       // string ownerEmail = "sabarimca7@gmail.com";
 
-        //// Compose email
-        //string subject = "New Cab Booking";
-        //string body = $"<h3>New Booking Confirmed</h3>" +
-        //              $"<p><strong>Customer:</strong> {bookingRequest.CustomerName}</p>" +
-        //              $"<p><strong>Pickup:</strong> {bookingRequest.FromLocation}</p>" +
-        //              $"<p><strong>Drop:</strong> {bookingRequest.ToLocation}</p>" +
-        //              $"<p><strong>Date:</strong> {bookingRequest.PickupDateTime}</p>";
+        var fromEmail = "thiruvarasan121@gmail.com";
+        var password = "hghotopfkjozuelh";
+        var toEmail = "sabarimca7@gmail.com";
 
-        //// Send email
-        //using (var client = new SmtpClient("smtp.gmail.com", 587))
-        //{
-        //    client.Credentials = new NetworkCredential("thiruvarasan121@gmail.com", "raam1234");
-        //    client.EnableSsl = true;
+        var subject = "New Booking Recieved From " + bookingRequest.CustomerName + " Location : (" + bookingRequest.FromLocation + ") TO  (" + bookingRequest.ToLocation + ")!";
+        var body = $"<h3>Dear User,</h3><p>New Booking Recieved From " + bookingRequest.CustomerName + "</p> <p>Phone:" + bookingRequest.PhoneNumber + "</p>";
 
-        //    var mail = new MailMessage("thiruvarasan121@gmail.com", ownerEmail, subject, body)
-        //    {
-        //        IsBodyHtml = true
-        //    };
+        try
+        {
+            var mail = new MailMessage(fromEmail, toEmail, subject, body);
+            mail.IsBodyHtml = true;
 
-        //    try
-        //    {
-        //        await client.SendMailAsync(mail);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
+            using (var smtp = new SmtpClient("smtp.gmail.com", int.Parse("587")))
+            {
+                smtp.Credentials = new NetworkCredential(fromEmail, password);
+                smtp.EnableSsl = true;
+                smtp.Send(mail);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+
+
         return Ok(booking);
     }
 
